@@ -1,4 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cctype>
+#include <filesystem>
 #include <iomanip>
 #include <map>
 #include <vector>
@@ -6,11 +10,11 @@
 #include <random>
 #include <ctime>
 #include <algorithm>
-#include <numeric>
+#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
-// Global variables
 string ref_no = "";
 string date_time = "";
 string cond_name = "";
@@ -21,7 +25,6 @@ double baraco_tix = 0;
 double baraco_disc = 0;
 double baraco_tix_disc = 0;
 
-// Data structures
 map<string, string> baraco_stations = {
     {"1", "Batangas City"},
     {"2", "Ibaan"},
@@ -38,31 +41,282 @@ map<string, double> routes_km = {
     {"5-1", 39.9}, {"5-2", 42.6}, {"5-3", 41.8}, {"5-4", 38.6}
 };
 
-map<string, int> routes_qty = {
-    {"1-2", 0}, {"1-3", 0}, {"1-4", 0}, {"1-5", 0},
-    {"2-1", 0}, {"2-3", 0}, {"2-4", 0}, {"2-5", 0},
-    {"3-1", 0}, {"3-2", 0}, {"3-4", 0}, {"3-5", 0},
-    {"4-1", 0}, {"4-2", 0}, {"4-3", 0}, {"4-5", 0},
-    {"5-1", 0}, {"5-2", 0}, {"5-3", 0}, {"5-4", 0}
-};
-
 map<string, map<string, string>> baraco_rcp;
 vector<double> total_routes;
 vector<double> total_sales;
 
-// Function declarations
-void main_menu();
+unordered_set<string> existing_usernames;
+unordered_set<string> existing_passwords;
+unordered_set<string> existing_ids;
+
+void print_receipt();
+void create_src();
+string generate_unique_id();
+string trim();
+void card_gen();
+void load_users();
+void save_users();
+void save_username();
+void save_password();
+void activate_card();
+void open_card();
+void print_centered();
+void user_menu();
 void view_stations();
 string generate_ref_no();
 string get_current_datetime();
-void print_receipt(const string& ref_no, const map<string, string>& receipt);
 void select_route();
-void view_sales();
+void main_menu();
 
-// View BARACO stations
+void print_centered(const string& text, int width) {
+    int padding = (width - text.size()) / 2;
+    cout << string(padding, ' ') << text << endl;
+}
+
+void create_src() {
+    std::filesystem::create_directory("src");
+    ofstream card_file("src/card_numbers.txt");
+    if (card_file.is_open()) {
+        card_file.close();
+    }
+    else {
+        cerr << "\t>> Unable to 'create card_numbers.txt'." << endl;
+    }
+}
+
+string generate_unique_id(unordered_set<string>& existing_ids) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(0, 9);
+
+    string id;
+    do {
+        id = "";
+        for (int i = 0; i < 10; ++i) {
+            id += to_string(dis(gen));
+        }
+    } while (existing_ids.find(id) != existing_ids.end());
+
+    existing_ids.insert(id);
+    return id;
+}
+
+string trim(const string& str) {
+    auto start = str.find_first_not_of(" \t\n\r");
+    auto end = str.find_last_not_of(" \t\n\r");
+    return (start == string::npos || end == string::npos) ? "" : str.substr(start, end - start + 1);
+}
+
+void card_gen() {
+    ifstream card_file_in("src/card_numbers.txt");
+    string id;
+
+    while (card_file_in >> id) {
+        existing_ids.insert(id);
+    }
+    card_file_in.close();
+
+    ofstream card_file_out("src/card_numbers.txt", ios::app);
+    for (int i = 0; i < 10; ++i) {
+        card_file_out << generate_unique_id(existing_ids) << endl;
+    }
+    card_file_out.close();
+}
+
+void load_users() {
+    ifstream users_file("src/users.txt");
+    string line;
+
+    if (users_file.is_open()) {
+        while (getline(users_file, line)) {
+            size_t pos = 0;
+            while ((pos = line.find(", ", pos)) != string::npos) {
+                line.replace(pos, 2, ",");
+                pos += 1;
+            }
+
+            istringstream iss(line);
+            string temp;
+
+            getline(iss, temp, ',');
+            string username = trim(temp.substr(temp.find(":") + 1));
+
+            getline(iss, temp, ',');
+            string password = trim(temp.substr(temp.find(":") + 1));
+
+            getline(iss, temp);
+            string id_number = trim(temp.substr(temp.find(":") + 1));
+
+            existing_usernames.insert(username);
+            existing_passwords.insert(password);
+            existing_ids.insert(id_number);
+        }
+        users_file.close();
+    }
+    else {
+        cerr << "\t>> Unable to open 'users.txt'." << endl;
+    }
+}
+
+void save_users(const string& username, const string& password, const string& id_number) {
+    ofstream users_file("src/users.txt", ios::app);
+    if (users_file.is_open()) {
+        users_file << "Username: " << username << ", Password: " << password << ", ID Number: " << id_number << endl;
+        users_file.close();
+    }
+    else {
+        cerr << "\tUnable to open 'users.txt'." << endl;
+    }
+}
+
+void save_username(const string& username) {
+    existing_usernames.insert(username);
+}
+
+void save_password(const string& password) {
+    existing_passwords.insert(password);
+}
+
+void activate_card() {
+    string id_number, username, password;
+
+    cout << string(100, '_') << endl << endl;
+    print_centered("BARACO", 100);
+    print_centered("Batangas Railway Corporation", 100);
+    print_centered("Activate BARACO Card", 100);
+    cout << endl;
+
+    cout << "> Enter your ID number: ";
+    cin >> id_number;
+
+    ifstream card_file_in("src/card_numbers.txt");
+    if (!card_file_in.is_open()) {
+        cerr << "\t>> Unable to open 'card_numbers.txt'." << endl;
+        return;
+    }
+
+    vector<string> card_numbers;
+    string card_number;
+    bool id_found = false;
+
+    while (getline(card_file_in, card_number)) {
+        if (card_number == id_number) {
+            id_found = true;
+        }
+        else {
+            card_numbers.push_back(card_number);
+        }
+    }
+    card_file_in.close();
+
+    if (!id_found) {
+        cerr << "\t>> ID Number does not exist. Please try again." << endl;
+        return;
+    }
+
+    cout << "> Enter your username (at least 4 characters): ";
+    cin >> username;
+    if (username.length() < 4) {
+        cerr << "\t>> Username must be at least 4 characters. Please try again." << endl;
+        return;
+    }
+
+    if (existing_usernames.find(username) != existing_usernames.end()) {
+        cerr << "\t>> Username already exists. Please try a new username." << endl;
+        return;
+    }
+
+    cout << "> Enter your password (at least 8 characters): ";
+    cin >> password;
+    if (password.length() < 8) {
+        cerr << "\t>> Password must be at least 8 characters. Please try again." << endl;
+        return;
+    }
+
+    save_username(username);
+    save_password(password);
+    save_users(username, password, id_number);
+
+    ofstream card_file_out("src/card_numbers.txt");
+    if (card_file_out.is_open()) {
+        for (const string& card : card_numbers) {
+            card_file_out << card << endl;
+        }
+        card_file_out.close();
+    }
+    else {
+        cerr << "\t>> Unable to open card_numbers.txt" << endl;
+    }
+
+    cout << "\t>> Card activated successfully!" << endl;
+    main_menu();
+}
+
+void open_card() {
+    string username, password;
+
+    cout << string(100, '_') << endl << endl;
+    print_centered("BARACO", 100);
+    print_centered("Batangas Railway Corporation", 100);
+    print_centered("Open BARACO Card", 100);
+    cout << endl;
+
+    cout << "> Enter your username: ";
+    cin >> username;
+    cout << "> Enter your password: ";
+    cin >> password;
+
+    if (existing_usernames.find(username) != existing_usernames.end() &&
+        existing_passwords.find(password) != existing_passwords.end()) {
+        cout << "\t>> Sign-in successful!" << endl;
+        user_menu();
+    }
+    else {
+        cerr << "\t>> Invalid username or password. Please try again." << endl;
+    }
+}
+
+void user_menu() {
+    cout << string(100, '_') << endl << endl;
+    print_centered("BARACO", 100);
+    print_centered("Batangas Railway Corporation", 100);
+    print_centered("User Menu", 100);
+    cout << endl;
+
+    vector<string> menu_options = {
+        "View Stations",
+        "Select Route",
+        "Exit"
+    };
+
+    for (size_t i = 0; i < menu_options.size(); ++i) {
+        cout << i + 1 << ". " << menu_options[i] << "\n";
+    }
+
+    while (true) {
+        cout << "\n> Kindly select an option: ";
+        int choice;
+        cin >> choice;
+        switch (choice) {
+        case 1:
+            view_stations();
+            break;
+        case 2:
+            select_route();
+            break;
+        case 3:
+            cout << "\t>> Exiting...\n";
+            exit(0);
+        default:
+            cout << "\t>> Invalid input. Please try again.\n";
+        }
+    }
+}
+
 void view_stations() {
-    cout << string(50, '_') << "\n\n";
-    cout << setw(60 + 10) << "BARACO Stations\n\n";
+    cout << string(100, '_') << endl << endl;
+    print_centered("View BARACO Stations", 100);
+    cout << endl;
 
     int i = 1;
     for (const auto& station : baraco_stations) {
@@ -71,11 +325,11 @@ void view_stations() {
     }
 
     while (true) {
-        cout << "\n> Would you like to go back to the main menu? (Y/N) ";
+        cout << "\n> Would you like to go back to the User Menu? (Y/N) ";
         string choice;
         cin >> choice;
         if (choice == "Y" || choice == "y") {
-            main_menu();
+            user_menu();
             return;
         }
         else if (choice == "N" || choice == "n") {
@@ -87,7 +341,6 @@ void view_stations() {
     }
 }
 
-// Generate random reference number
 string generate_ref_no() {
     string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     random_device rd;
@@ -101,25 +354,26 @@ string generate_ref_no() {
     return ref_no;
 }
 
-// Get current date and time
 string get_current_datetime() {
     time_t now = time(0);
-    struct tm ltm;
+    tm ltm;
+#ifdef _WIN32
     localtime_s(&ltm, &now);
+#else
+    localtime_r(&now, &ltm);
+#endif
 
     char buf[80];
     strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M:%S", &ltm);
     return string(buf);
 }
 
-// Print receipt based on provided data
 void print_receipt(const string& ref_no, const map<string, string>& receipt) {
-    cout << string(75, '_') << "\n\n";
-    cout << setw(37 + 24) << "BARACO Official Receipt\n";
-    cout << setw(37 + 27) << "Batangas Railway Corporation\n";
+    cout << string(100, '_') << endl << endl;
+    print_centered("BARACO Official Receipt", 100);
+    cout << endl;
     cout << setw(37 + ("Reference No.: " + ref_no).size() / 2) << "Reference No.: " + ref_no + "\n";
     cout << setw(37 + ("Date and Time: " + receipt.at("rcp_datetime")).size() / 2) << "Date and Time: " + receipt.at("rcp_datetime") + "\n";
-    cout << setw(37 + ("Conductor: " + receipt.at("rcp_cond")).size() / 2) << "Conductor: " + receipt.at("rcp_cond") + "\n";
     cout << setw(37 + ("From: " + baraco_stations.at(receipt.at("rcp_orig"))).size() / 2) << "From: " + baraco_stations.at(receipt.at("rcp_orig")) + "\n";
     cout << setw(37 + ("To: " + baraco_stations.at(receipt.at("rcp_dest"))).size() / 2) << "To: " + baraco_stations.at(receipt.at("rcp_dest")) + "\n";
     cout << setw(37 + ("Regular: Php " + receipt.at("rcp_tix")).size() / 2) << "Regular: Php " + receipt.at("rcp_tix") + "\n";
@@ -128,14 +382,14 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     cout << string(75, '_') << "\n";
 }
 
-// Select BARACO route and process ticketing
 void select_route() {
     baraco_tix = 0;
     baraco_disc = 0;
     baraco_tix_disc = 0;
 
-    cout << string(150, '_') << "\n\n";
-    cout << setw(75 + 19) << "Select BARACO Route\n\n";
+    cout << string(100, '_') << endl << endl;
+    print_centered("Select BARACO Route", 100);
+    cout << endl;
 
     int i = 1;
     for (const auto& station : baraco_stations) {
@@ -143,13 +397,8 @@ void select_route() {
         i++;
     }
 
-    cout << "\n> Kindly enter your name: ";
-    cin.ignore();
-    getline(cin, cond_name);
-    transform(cond_name.begin(), cond_name.end(), cond_name.begin(), ::toupper);
-
     while (true) {
-        cout << "\n> Kindly select the numerical input corresponding to your origin point: ";
+        cout << "> Kindly select the numerical input corresponding to your origin point: ";
         cin >> orig_pt;
         cout << "> Kindly select the numerical input corresponding to your destination point: ";
         cin >> dest_pt;
@@ -159,7 +408,6 @@ void select_route() {
             baraco_tix = 5 * abs(routes_km[orig_dest] - 7);
             baraco_tix = static_cast<int>(baraco_tix) + (baraco_tix - static_cast<int>(baraco_tix) >= 0.5 ? 1 : 0);
             total_routes.push_back(routes_km[orig_dest]);
-            routes_qty[orig_dest]++;
 
             cout << "\t>> The calculated distance from " << baraco_stations[to_string(orig_pt)] << " to " << baraco_stations[to_string(dest_pt)] << " is " << routes_km[orig_dest] << " kilometers.\n";
 
@@ -197,7 +445,7 @@ void select_route() {
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            main_menu();
+                            user_menu();
                             return;
                         }
                         else {
@@ -233,7 +481,7 @@ void select_route() {
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            main_menu();
+                            user_menu();
                             return;
                         }
                         else {
@@ -252,47 +500,16 @@ void select_route() {
     }
 }
 
-/*void view_sales() {
-    cout << string(150, '_') << "\n\n";
-    cout << setw(75 + 29) << "BARACO Total Sales and Routes\n\n";
-
-    cout << "Summary of Sales by Routes:\n";
-    for (const auto& route_qty : routes_qty) {
-        if (route_qty.second != 0) {
-            cout << "Route " << route_qty.first << ": " << route_qty.second << " trip(s)\n";
-        }
-    }
-
-    cout << "\nTotal Sales Amount: Php " << fixed << setprecision(2) << accumulate(total_sales.begin(), total_sales.end(), 0.0) << "\n";
-    cout << "Total Distance Travelled: " << fixed << setprecision(2) << accumulate(total_routes.begin(), total_routes.end(), 0.0) << " kilometers\n";
-
-    while (true) {
-        cout << "\n> Would you like to go back to the main menu? (Y/N) ";
-        string choice;
-        cin >> choice;
-        if (choice == "Y" || choice == "y") {
-            main_menu();
-            return;
-        }
-        else if (choice == "N" || choice == "n") {
-            return;
-        }
-        else {
-            cout << "\t>> Invalid input. Please try again.\n";
-        }
-    }
-}*/
-
-// Main menu function
 void main_menu() {
-    cout << string(100, '_') << "\n\n";
-    cout << setw(55) << "BARACO\n\n";
-    cout << setw(66) << "Batangas Railway Corporation\n\n";
+    cout << string(100, '_') << endl << endl;
+    print_centered("BARACO", 100);
+    print_centered("Batangas Railway Corporation", 100);
+    print_centered("Main Menu", 100);
+    cout << endl;
 
     vector<string> menu_options = {
-        "View BARACO stations",
-        "Select BARACO route",
-        "View BARACO total sales and routes",
+        "Activate BARACO Card",
+        "Open BARACO Card",
         "Exit"
     };
 
@@ -306,15 +523,12 @@ void main_menu() {
         cin >> choice;
         switch (choice) {
         case 1:
-            view_stations();
-            return;
+            activate_card();
+            break;
         case 2:
-            select_route();
-            return;
+            open_card();
+            break;
         case 3:
-            view_sales();
-            return;
-        case 4:
             cout << "\t>> Exiting BARACO System...\n";
             exit(0);
         default:
@@ -323,8 +537,10 @@ void main_menu() {
     }
 }
 
-// Main function
 int main() {
+    create_src();
+    card_gen();
+    load_users();
     main_menu();
     return 0;
 }
