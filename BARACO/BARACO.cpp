@@ -45,6 +45,7 @@ map<string, map<string, string>> baraco_rcp;
 vector<double> total_routes;
 vector<double> total_sales;
 
+string format_currency(float amount);
 void print_receipt(const string& ref_no, const map<string, string>& receipt);
 void create_src();
 string generate_unique_id(unordered_set<string>& existing_ids);
@@ -70,6 +71,12 @@ void main_menu();
 unordered_set<string> existing_usernames;
 unordered_set<string> existing_passwords;
 unordered_set<string> existing_ids;
+
+string format_currency(float amount) {
+    stringstream ss;
+    ss << fixed << setprecision(2) << amount;
+    return ss.str();
+}
 
 void print_centered(const string& text, int width) {
     int padding = (width - text.size()) / 2;
@@ -208,8 +215,18 @@ void save_coins(const string& username, float coins) {
                 if (end_pos == string::npos) {
                     end_pos = line.length();
                 }
+                string coins_str = line.substr(pos + 6, end_pos - (pos + 6));
+                float current_coins = 0.0f;
+                try {
+                    current_coins = stof(coins_str);
+                }
+                catch (const std::invalid_argument& e) {
+                    cerr << "\t>> Invalid current coins value: " << coins_str << endl;
+                    current_coins = 0.0f;
+                }
+                current_coins -= coins;
                 stringstream coins_ss;
-                coins_ss << fixed << setprecision(2) << coins;
+                coins_ss << fixed << setprecision(2) << current_coins;
                 line.replace(pos + 6, end_pos - (pos + 6), " " + coins_ss.str());
             }
         }
@@ -530,23 +547,57 @@ string get_current_datetime() {
 }
 
 void print_receipt(const string& ref_no, const map<string, string>& receipt) {
-    cout << string(100, '_') << endl << endl;
+    float rcp_tix = stof(receipt.at("rcp_tix"));
+    float rcp_disc = stof(receipt.at("rcp_disc"));
+    float rcp_tix_disc = stof(receipt.at("rcp_tix_disc"));
+
+    print_centered(string(50, '_'), 100);
+    cout << endl;
     print_centered("BARACO Official Receipt", 100);
     cout << endl;
-    cout << setw(37 + ("Reference No.: " + ref_no).size() / 2) << "Reference No.: " + ref_no + "\n";
-    cout << setw(37 + ("Date and Time: " + receipt.at("rcp_datetime")).size() / 2) << "Date and Time: " + receipt.at("rcp_datetime") + "\n";
-    cout << setw(37 + ("From: " + baraco_stations.at(receipt.at("rcp_orig"))).size() / 2) << "From: " + baraco_stations.at(receipt.at("rcp_orig")) + "\n";
-    cout << setw(37 + ("To: " + baraco_stations.at(receipt.at("rcp_dest"))).size() / 2) << "To: " + baraco_stations.at(receipt.at("rcp_dest")) + "\n";
-    cout << setw(37 + ("Regular: Php " + receipt.at("rcp_tix")).size() / 2) << "Regular: Php " + receipt.at("rcp_tix") + "\n";
-    cout << setw(37 + ("Discount: Php " + receipt.at("rcp_disc")).size() / 2) << "Discount: Php " + receipt.at("rcp_disc") + "\n";
-    cout << setw(37 + ("Total Amount: Php " + receipt.at("rcp_tix_disc")).size() / 2) << "Total Amount: Php " + receipt.at("rcp_tix_disc") + "\n";
-    cout << string(75, '_') << "\n";
+
+    print_centered("Reference No.: " + ref_no, 100);
+    print_centered("Date and Time: " + receipt.at("rcp_datetime"), 100);
+    print_centered("From: " + baraco_stations.at(receipt.at("rcp_orig")), 100);
+    print_centered("To: " + baraco_stations.at(receipt.at("rcp_dest")), 100);
+    print_centered("Regular: Php " + format_currency(rcp_tix), 100);
+    print_centered("Discount: Php " + format_currency(rcp_disc), 100);
+    print_centered("Total Amount: Php " + format_currency(rcp_tix_disc), 100);
+    print_centered(string(50, '_'), 100);
+    cout << endl;
 }
 
 void select_route(const string& username) {
     baraco_tix = 0;
     baraco_disc = 0;
     baraco_tix_disc = 0;
+
+    // Fetch current user's coin balance
+    ifstream users_file("src/users.txt");
+    string line;
+    float user_coins = 0.0f;
+
+    while (getline(users_file, line)) {
+        if (line.find("Username: " + username) != string::npos) {
+            size_t coins_pos = line.find("Coins: ");
+            size_t coins_end_pos = line.find(",", coins_pos);
+            if (coins_pos != string::npos) {
+                if (coins_end_pos == string::npos) {
+                    coins_end_pos = line.length();
+                }
+                string coins_str = line.substr(coins_pos + 6, coins_end_pos - (coins_pos + 6));
+                try {
+                    user_coins = stof(coins_str);
+                }
+                catch (const std::invalid_argument& e) {
+                    cerr << "\t>> Invalid coins value: " << coins_str << endl;
+                    user_coins = 0.0f;
+                }
+            }
+            break;
+        }
+    }
+    users_file.close();
 
     cout << string(100, '_') << endl << endl;
     print_centered("Select BARACO Route", 100);
@@ -559,7 +610,7 @@ void select_route(const string& username) {
     }
 
     while (true) {
-        cout << "> Kindly select the numerical input corresponding to your origin point: ";
+        cout << endl << "> Kindly select the numerical input corresponding to your origin point: ";
         cin >> orig_pt;
         cout << "> Kindly select the numerical input corresponding to your destination point: ";
         cin >> dest_pt;
@@ -576,11 +627,18 @@ void select_route(const string& username) {
                 cout << "> Are you a senior citizen, PWD, or a student? (Y/N) ";
                 string elig_disc;
                 cin >> elig_disc;
+
                 if (elig_disc == "Y" || elig_disc == "y") {
                     baraco_disc = baraco_tix * 0.2;
                     baraco_tix_disc = baraco_tix - baraco_disc;
+
+                    if (user_coins < baraco_tix_disc) {
+                        cout << "\t>> Insufficient coins. Please top up your card.\n";
+                        user_menu(username);
+                    }
+
                     total_sales.push_back(baraco_tix_disc);
-                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare with the 20% discount applied is Php " << fixed << setprecision(2) << baraco_tix_disc << ".\n";
+                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare with the 20% discount applied is Php " << fixed << setprecision(2) << baraco_tix_disc << ".\n\n";
 
                     ref_no = generate_ref_no();
                     date_time = get_current_datetime();
@@ -597,16 +655,18 @@ void select_route(const string& username) {
 
                     print_receipt(ref_no, baraco_rcp[ref_no]);
 
+                    save_coins(username, baraco_tix_disc);
+
                     while (true) {
-                        cout << "> Would you like to ride again? (Y/N) ";
+                        cout << "> Would you like to go back to the user menu? (Y/N) ";
                         string again;
                         cin >> again;
                         if (again == "Y" || again == "y") {
-                            select_route(username);
+                            user_menu(username);
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            user_menu(username);
+                            select_route(username);
                             return;
                         }
                         else {
@@ -615,8 +675,13 @@ void select_route(const string& username) {
                     }
                 }
                 else if (elig_disc == "N" || elig_disc == "n") {
+                    if (user_coins < baraco_tix) {
+                        cout << "\t>> Insufficient coins. Please top up your card.\n";
+                        user_menu(username);
+                    }
+
                     total_sales.push_back(baraco_tix);
-                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare is Php " << fixed << setprecision(2) << baraco_tix << ".\n";
+                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare is Php " << fixed << setprecision(2) << baraco_tix << ".\n\n";
 
                     ref_no = generate_ref_no();
                     date_time = get_current_datetime();
@@ -633,16 +698,18 @@ void select_route(const string& username) {
 
                     print_receipt(ref_no, baraco_rcp[ref_no]);
 
+                    save_coins(username, baraco_tix);
+
                     while (true) {
-                        cout << "> Would you like to ride again? (Y/N) ";
+                        cout << "> Would you like to go back to the user menu? (Y/N) ";
                         string again;
                         cin >> again;
                         if (again == "Y" || again == "y") {
-                            select_route(username);
+                            user_menu(username);
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            user_menu(username);
+                            select_route(username);
                             return;
                         }
                         else {

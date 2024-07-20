@@ -1,5 +1,5 @@
-ID Number: 3224038380, Username: aila, Password: roshiele, Coins: 300.00
-ID Number: 4439851235, Username: arcd, Password: roshiele25, Coins: 500.00
+ID Number: 3224038380, Username: aila, Password: roshiele, Coins: 47.20
+ID Number: 4439851235, Username: arcd, Password: roshiele25, Coins: 360.80
 ID Number: 7345479094, Username: marklee, Password: marklee127, Coins: 1000.00
-ID Number: 8729251957, Username: jaehyun, Password: jeongjaeh, Coins: 750.00
+ID Number: 8729251957, Username: jaehyun, Password: jeongjaeh, Coins: 585.00
 ID Number: 9853732218, Username: kent, Password: kenthahaha, Coins: 127.00
