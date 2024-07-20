@@ -45,28 +45,31 @@ map<string, map<string, string>> baraco_rcp;
 vector<double> total_routes;
 vector<double> total_sales;
 
+void print_receipt(const string& ref_no, const map<string, string>& receipt);
+void create_src();
+string generate_unique_id(unordered_set<string>& existing_ids);
+string trim(const string& str);
+void card_gen();
+void load_users();
+void save_users(const string& username, const string& password, const string& id_number);
+void save_username(const string& username);
+void save_password(const string& password);
+void save_coins(const string& username, float coins);
+void activate_card();
+void open_card();
+void print_centered(const string& text, int width);
+void user_menu(const string& username);
+void view_stations(const string& username);
+void topup_card(const string& username);
+string generate_ref_no();
+string get_current_datetime();
+void select_route(const string& username);
+void sign_out();
+void main_menu();
+
 unordered_set<string> existing_usernames;
 unordered_set<string> existing_passwords;
 unordered_set<string> existing_ids;
-
-void print_receipt();
-void create_src();
-string generate_unique_id();
-string trim();
-void card_gen();
-void load_users();
-void save_users();
-void save_username();
-void save_password();
-void activate_card();
-void open_card();
-void print_centered();
-void user_menu();
-void view_stations();
-string generate_ref_no();
-string get_current_datetime();
-void select_route();
-void main_menu();
 
 void print_centered(const string& text, int width) {
     int padding = (width - text.size()) / 2;
@@ -144,8 +147,20 @@ void load_users() {
             getline(iss, temp, ',');
             string password = trim(temp.substr(temp.find(":") + 1));
 
-            getline(iss, temp);
+            getline(iss, temp, ',');
             string id_number = trim(temp.substr(temp.find(":") + 1));
+
+            getline(iss, temp);
+            string coins_str = trim(temp.substr(temp.find(":") + 1));
+
+            float coins = 0.0f;
+            try {
+                coins = stof(coins_str);
+            }
+            catch (const std::invalid_argument&) {
+                cerr << "\t>> Invalid coins value: " << coins_str << endl;
+                continue;
+            }
 
             existing_usernames.insert(username);
             existing_passwords.insert(password);
@@ -161,11 +176,14 @@ void load_users() {
 void save_users(const string& username, const string& password, const string& id_number) {
     ofstream users_file("src/users.txt", ios::app);
     if (users_file.is_open()) {
-        users_file << "Username: " << username << ", Password: " << password << ", ID Number: " << id_number << endl;
+        users_file << "Username: " << username
+            << ", Password: " << password
+            << ", ID Number: " << id_number
+            << ", Coins: 0.00" << endl;
         users_file.close();
     }
     else {
-        cerr << "\tUnable to open 'users.txt'." << endl;
+        cerr << "\t>> Unable to open 'users.txt'." << endl;
     }
 }
 
@@ -175,6 +193,35 @@ void save_username(const string& username) {
 
 void save_password(const string& password) {
     existing_passwords.insert(password);
+}
+
+void save_coins(const string& username, float coins) {
+    ifstream users_file_in("src/users.txt");
+    vector<string> users_data;
+    string line;
+
+    while (getline(users_file_in, line)) {
+        if (line.find("Username: " + username) != string::npos) {
+            size_t pos = line.find("Coins: ");
+            size_t end_pos = line.find(",", pos);
+            if (pos != string::npos) {
+                if (end_pos == string::npos) {
+                    end_pos = line.length();
+                }
+                stringstream coins_ss;
+                coins_ss << fixed << setprecision(2) << coins;
+                line.replace(pos + 6, end_pos - (pos + 6), " " + coins_ss.str());
+            }
+        }
+        users_data.push_back(line);
+    }
+    users_file_in.close();
+
+    ofstream users_file_out("src/users.txt");
+    for (const string& data : users_data) {
+        users_file_out << data << endl;
+    }
+    users_file_out.close();
 }
 
 void activate_card() {
@@ -235,7 +282,18 @@ void activate_card() {
 
     save_username(username);
     save_password(password);
-    save_users(username, password, id_number);
+
+    ofstream users_file("src/users.txt", ios::app);
+    if (users_file.is_open()) {
+        users_file << "ID Number: " << id_number
+            << ", Username: " << username
+            << ", Password: " << password
+            << ", Coins: 0" << endl;
+        users_file.close();
+    }
+    else {
+        cerr << "\t>> Unable to open 'users.txt'." << endl;
+    }
 
     ofstream card_file_out("src/card_numbers.txt");
     if (card_file_out.is_open()) {
@@ -245,7 +303,7 @@ void activate_card() {
         card_file_out.close();
     }
     else {
-        cerr << "\t>> Unable to open card_numbers.txt" << endl;
+        cerr << "\t>> Unable to open 'card_numbers.txt'." << endl;
     }
 
     cout << "\t>> Card activated successfully!" << endl;
@@ -266,27 +324,76 @@ void open_card() {
     cout << "> Enter your password: ";
     cin >> password;
 
-    if (existing_usernames.find(username) != existing_usernames.end() &&
-        existing_passwords.find(password) != existing_passwords.end()) {
-        cout << "\t>> Sign-in successful!" << endl;
-        user_menu();
+    ifstream users_file("src/users.txt");
+    string line;
+    bool user_found = false;
+
+    while (getline(users_file, line)) {
+        if (line.find("Username: " + username) != string::npos &&
+            line.find("Password: " + password) != string::npos) {
+            user_found = true;
+            break;
+        }
     }
-    else {
+    users_file.close();
+
+    if (!user_found) {
         cerr << "\t>> Invalid username or password. Please try again." << endl;
+        return;
     }
+
+    user_menu(username);
 }
 
-void user_menu() {
+void user_menu(const string& username) {
+    ifstream users_file("src/users.txt");
+    string line;
+    float user_coins = 0.0f;
+    string user_id;
+
+    while (getline(users_file, line)) {
+        if (line.find("Username: " + username) != string::npos) {
+            size_t id_pos = line.find("ID Number: ");
+            size_t id_end_pos = line.find(",", id_pos);
+            if (id_pos != string::npos) {
+                user_id = line.substr(id_pos + 11, id_end_pos - (id_pos + 11));
+            }
+
+            size_t coins_pos = line.find("Coins: ");
+            size_t coins_end_pos = line.find(",", coins_pos);
+            if (coins_pos != string::npos) {
+                if (coins_end_pos == string::npos) {
+                    coins_end_pos = line.length();
+                }
+                string coins_str = line.substr(coins_pos + 6, coins_end_pos - (coins_pos + 6));
+                try {
+                    user_coins = stof(coins_str);
+                }
+                catch (const std::invalid_argument& e) {
+                    cerr << "\t>> Invalid coins value: " << coins_str << endl;
+                    user_coins = 0.0f;
+                }
+            }
+            break;
+        }
+    }
+    users_file.close();
+
     cout << string(100, '_') << endl << endl;
     print_centered("BARACO", 100);
     print_centered("Batangas Railway Corporation", 100);
     print_centered("User Menu", 100);
     cout << endl;
 
+    cout << "Username: " << username << endl;
+    cout << "ID Number: " << user_id << endl;
+    cout << "Coins: Php " << fixed << setprecision(2) << user_coins << endl << endl;
+
     vector<string> menu_options = {
         "View Stations",
         "Select Route",
-        "Exit"
+        "Top Up Card",
+        "Sign Out"
     };
 
     for (size_t i = 0; i < menu_options.size(); ++i) {
@@ -299,21 +406,24 @@ void user_menu() {
         cin >> choice;
         switch (choice) {
         case 1:
-            view_stations();
+            view_stations(username);
             break;
         case 2:
-            select_route();
+            select_route(username);
             break;
         case 3:
-            cout << "\t>> Exiting...\n";
-            exit(0);
+            topup_card(username);
+            break;
+        case 4:
+            sign_out();
+            return;
         default:
             cout << "\t>> Invalid input. Please try again.\n";
         }
     }
 }
 
-void view_stations() {
+void view_stations(const string& username) {
     cout << string(100, '_') << endl << endl;
     print_centered("View BARACO Stations", 100);
     cout << endl;
@@ -329,7 +439,7 @@ void view_stations() {
         string choice;
         cin >> choice;
         if (choice == "Y" || choice == "y") {
-            user_menu();
+            user_menu(username);
             return;
         }
         else if (choice == "N" || choice == "n") {
@@ -339,6 +449,57 @@ void view_stations() {
             cout << "\t>> Invalid input. Please try again.\n";
         }
     }
+}
+
+void topup_card(const string& username) {
+    float coins_to_add;
+    cout << "> Enter the amount you want to add (Php): ";
+    cin >> coins_to_add;
+
+    if (coins_to_add <= 0) {
+        cerr << "\t>> Invalid amount. Please enter a positive number." << endl;
+        return;
+    }
+
+    ifstream users_file_in("src/users.txt");
+    vector<string> users_data;
+    string line;
+    float current_coins = 0.0f;
+
+    while (getline(users_file_in, line)) {
+        if (line.find("Username: " + username) != string::npos) {
+            size_t pos = line.find("Coins: ");
+            size_t end_pos = line.find(",", pos);
+
+            if (pos != string::npos) {
+                if (end_pos == string::npos) {
+                    end_pos = line.length();
+                }
+                string coins_str = line.substr(pos + 6, end_pos - (pos + 6));
+                try {
+                    current_coins = stof(coins_str);
+                }
+                catch (const std::invalid_argument& e) {
+                    cerr << "\t>> Invalid current coins value: " << coins_str << endl;
+                    current_coins = 0.0f;
+                }
+                current_coins += coins_to_add;
+                stringstream coins_ss;
+                coins_ss << fixed << setprecision(2) << current_coins;
+                line.replace(pos + 6, end_pos - (pos + 6), " " + coins_ss.str());
+            }
+        }
+        users_data.push_back(line);
+    }
+    users_file_in.close();
+
+    ofstream users_file_out("src/users.txt");
+    for (const string& data : users_data) {
+        users_file_out << data << endl;
+    }
+    users_file_out.close();
+
+    cout << "\t>> Top-up successful! Your new coin balance is updated." << endl;
 }
 
 string generate_ref_no() {
@@ -382,7 +543,7 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     cout << string(75, '_') << "\n";
 }
 
-void select_route() {
+void select_route(const string& username) {
     baraco_tix = 0;
     baraco_disc = 0;
     baraco_tix_disc = 0;
@@ -441,11 +602,11 @@ void select_route() {
                         string again;
                         cin >> again;
                         if (again == "Y" || again == "y") {
-                            select_route();
+                            select_route(username);
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            user_menu();
+                            user_menu(username);
                             return;
                         }
                         else {
@@ -477,11 +638,11 @@ void select_route() {
                         string again;
                         cin >> again;
                         if (again == "Y" || again == "y") {
-                            select_route();
+                            select_route(username);
                             return;
                         }
                         else if (again == "N" || again == "n") {
-                            user_menu();
+                            user_menu(username);
                             return;
                         }
                         else {
@@ -498,6 +659,11 @@ void select_route() {
             cout << "\t>> Invalid input. Please try again.\n";
         }
     }
+}
+
+void sign_out() {
+    cout << "\t>> Signing out...\n";
+    main_menu();
 }
 
 void main_menu() {
