@@ -1,8 +1,9 @@
 <p align="center">
   <a href="[https://github.com/your-username/your-repository/blob/main/BARACO/Baraco.png](https://github.com/user-attachments/assets/52368ec8-e8be-4a6c-8158-bff7a1839264)">
-    <img src="https://github.com/andavael/your-repository/raw/main/BARACO/Baraco.png" alt="BARACO Video" width="500" />
+    <img src="https://github.com/ailadonayre/BARACO-Batangas-Railway-Corporation-/raw/main/BARACO/Baraco.png" alt="BARACO Video" width="500" />
   </a>
 </p>
+
 # BARACO (Batangas Railway Corportation)
 Batangas Railway Corporation (BARACO) is a C++ program developed to enhance the convenience of travel for both train conductors and passengers in Batangas City. This program will operate through a console (DIPA SURE) interface, streamlining fare management and enhancing efficiency.
 <br>
