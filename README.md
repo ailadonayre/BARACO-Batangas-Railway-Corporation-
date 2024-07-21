@@ -93,13 +93,13 @@ Below is a table highlighting the key contributors to the project, along with th
       <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
       <td>Developer</td>
-      <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
+      <td><a href="mailto:23-04485@g.batstate-u.edu.ph">23-04485@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/Donayre, Aila Roshiele C.JPG" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
-      <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
+      <td><img src="/BARACO README/Donayre, Aila Roshiele C.JPG" alt="Aila Roshiele C. Donayre" width="50" style="border-radius:50%;"></td>
+      <td><a href="https://github.com/ailadonayre" target="_blank">Aila Roshiele C. Donayre</a></td>
       <td>Developer</td>
-      <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
+      <td><a href="mailto:23-02175@g.batstate-u.edu.ph">23-02175@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
       <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
