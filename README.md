@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="[https://github.com/user-attachments/assets/987ae09a-c02f-4d4b-a5a9-6034a8ddab08](https://github.com/user-attachments/assets/88483b6d-e46c-4903-a653-56ddf1f33940)">
+  <a href="https://github.com/user-attachments/assets/88483b6d-e46c-4903-a653-56ddf1f33940">
     <img src="/BARACO README/BARACO.png" alt="BARACO Video" width="500" />
   </a>
 </p>
