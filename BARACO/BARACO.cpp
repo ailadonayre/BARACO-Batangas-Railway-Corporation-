@@ -68,9 +68,15 @@ void select_route(const string& username);
 void sign_out();
 void main_menu();
 
+void view_favorite(const string& username);
+void add_favorites(const string& username);
+void remove_favorites(const string& username);
+
 unordered_set<string> existing_usernames;
 unordered_set<string> existing_passwords;
 unordered_set<string> existing_ids;
+
+unordered_map<string, vector<string>> user_favorites;
 
 string format_currency(float amount) {
     stringstream ss;
@@ -409,6 +415,7 @@ void user_menu(const string& username) {
     vector<string> menu_options = {
         "View Stations",
         "Select Route",
+        "View Favorite Routes",
         "Top Up Card",
         "Sign Out"
     };
@@ -420,7 +427,11 @@ void user_menu(const string& username) {
     while (true) {
         cout << "\n> Kindly select an option: ";
         int choice;
-        cin >> choice;
+        while (!(cin >> choice)) {
+            cout << "Invalid input. Please enter an integer: ";
+            cin.clear();
+            cin.ignore(1000000, '\n');
+        }
         switch (choice) {
         case 1:
             view_stations(username);
@@ -429,15 +440,136 @@ void user_menu(const string& username) {
             select_route(username);
             break;
         case 3:
-            topup_card(username);
+            view_favorite(username);
             break;
         case 4:
+            topup_card(username);
+            break;
+        case 5:
             sign_out();
             return;
         default:
             cout << "\t>> Invalid input. Please try again.\n";
         }
     }
+}
+
+void view_favorite(const string& username) {
+    print_centered("Favorite BARACO Routes\n", 100);
+    auto it = user_favorites.find(username);
+    if (it != user_favorites.end() && !it->second.empty()) {
+        for (size_t i = 0; i < it->second.size(); ++i) {
+            cout << i + 1 << ". " << it->second[i] << " - " 
+                 << baraco_stations[it->second[i].substr(0, 1)] << " to " 
+                 << baraco_stations[it->second[i].substr(2, 1)] << "\n";
+        }
+    } else {
+        cout << "No favorite routes found.\n";
+    }
+
+    cout << "\n[A] Add new favorite route\n";
+    cout << "[R] Remove favorite route\n";
+    cout << "[X] return\n";
+    cout << "Enter your choice: ";
+
+    string choice;
+    getline(cin >> ws, choice);
+
+    if (choice.empty()) {
+        user_menu(username);
+        return;
+    }
+
+    switch (choice[0]) {
+        case 'A':
+        case 'a':
+            add_favorites(username);
+            break;
+        case 'R':
+        case 'r':
+            remove_favorites(username);
+            break;
+        case 'X':
+        case 'x':
+            user_menu(username);
+            break;
+        default:
+            cout << "\t>> Invalid input. Please try again.\n";
+            view_favorite(username);
+    }
+}
+
+void add_favorites(const string& username) {
+    print_centered("\nAdd New Favorite Route", 100);
+    cout << "\nAdd New Favorite Route\n\n";
+    cout << "Available Routes:\n";
+    for (const auto& route : routes_km) {
+        cout << route.first << " - " 
+             << baraco_stations[route.first.substr(0, 1)] << " to " 
+             << baraco_stations[route.first.substr(2, 1)] << "\n";
+    }
+    cout << "\nEnter the route you want to add (e.g., 1-2): ";
+    string new_route;
+    getline(cin >> ws, new_route);
+
+    if (new_route.empty()) {
+        user_menu(username);
+        return;
+    }
+
+    auto it = routes_km.find(new_route);
+    if (it != routes_km.end()) {
+        if (find(user_favorites[username].begin(), user_favorites[username].end(), new_route) != user_favorites[username].end()) {
+            cout << "\nRoute has already been added to favorites.\n";
+        } else {
+            user_favorites[username].push_back(new_route);
+            cout << "\nRoute added to favorites.\n";
+        }
+    } else {
+        cout << "\nInvalid route. Please try again.\n";
+    }
+
+    view_favorite(username);
+}
+
+void remove_favorites(const string& username) {
+    print_centered("\nRemove Favorite Route", 100);
+    auto it = user_favorites.find(username);
+    if (it != user_favorites.end() && !it->second.empty()) {
+        for (size_t i = 0; i < it->second.size(); ++i) {
+            cout << i + 1 << ". " << it->second[i] << " - " 
+                 << baraco_stations[it->second[i].substr(0, 1)] << " to " 
+                 << baraco_stations[it->second[i].substr(2, 1)] << "\n";
+        }
+        cout << "\nEnter the number of the route you want to remove: ";
+        string input;
+        getline(cin >> ws, input);
+
+        if (input.empty()) {
+            user_menu(username);
+            return;
+        }
+
+        int route_num;
+        try {
+            route_num = stoi(input);
+        } catch (const invalid_argument&) {
+            cout << "\nInvalid input. Please try again.\n";
+            remove_favorites(username);
+            return;
+        }
+
+        if (route_num > 0 && route_num <= static_cast<int>(it->second.size())) {
+            it->second.erase(it->second.begin() + (route_num - 1));
+            cout << "\nRoute removed from favorites.\n";
+        } else {
+            cout << "\nInvalid number. Please try again.\n";
+        }
+    } else {
+        cout << "\nNo favorite routes to remove.\n";
+    }
+
+    view_favorite(username);
 }
 
 void view_stations(const string& username) {
@@ -611,9 +743,17 @@ void select_route(const string& username) {
 
     while (true) {
         cout << endl << "> Kindly select the numerical input corresponding to your origin point: ";
-        cin >> orig_pt;
+        while (!(cin >> orig_pt)) {
+            cout << "Invalid input. please enter an integer: ";
+            cin.clear();
+            cin.ignore(1000000, '\n');
+        }
         cout << "> Kindly select the numerical input corresponding to your destination point: ";
-        cin >> dest_pt;
+        while (!(cin >> dest_pt)) {
+            cout << "Invalid input. please enter an integer: ";
+            cin.clear();
+            cin.ignore(1000000, '\n');
+        }
         orig_dest = to_string(orig_pt) + "-" + to_string(dest_pt);
 
         if (routes_km.find(orig_dest) != routes_km.end()) {
@@ -753,7 +893,11 @@ void main_menu() {
     while (true) {
         cout << "\n> Kindly select an option from the BARACO Main Menu: ";
         int choice;
-        cin >> choice;
+        while(!(cin >> choice)){
+            cout << "Invalid input. Please enter an integer: ";
+            cin.clear();
+            cin.ignore(1000000, '\n');
+        };
         switch (choice) {
         case 1:
             activate_card();
