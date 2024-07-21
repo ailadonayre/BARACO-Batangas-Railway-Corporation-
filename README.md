@@ -108,7 +108,7 @@ Below is a table highlighting the key contributors to the project, along with th
       <td><a href="mailto:23-08318@g.batstate-u.edu.ph">23-08318@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/Anda.jpg" alt="Richard Crue Torres" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/RC.png" alt="Richard Crue Torres" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/RC-Torres" target="_blank">Richard Crue Torres</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-02148@g.batstate-u.edu.ph">23-02148@g.batstate-u.edu.ph</a></td>
