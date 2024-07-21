@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/user-attachments/assets/4d7e5b52-179e-48fe-97e1-38889cfcff57">
+  <a href="https://github.com/user-attachments/assets/88483b6d-e46c-4903-a653-56ddf1f33940">
     <img src="/BARACO README/BARACO.png" alt="BARACO Video" width="500" />
   </a>
 </p>
@@ -102,13 +102,13 @@ Below is a table highlighting the key contributors to the project, along with th
       <td><a href="mailto:23-02175@g.batstate-u.edu.ph">23-02175@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/Anda.jpg" alt="Kristal Clarisse Dimayuga" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/KC.png" alt="Kristal Clarisse Dimayuga" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/kristaldimayuga" target="_blank">Kristal Clarisse Dimayuga</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-08318@g.batstate-u.edu.ph">23-08318@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/Anda.jpg" alt="Richard Crue Torres" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/RC.png" alt="Richard Crue Torres" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/RC-Torres" target="_blank">Richard Crue Torres</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-02148@g.batstate-u.edu.ph">23-02148@g.batstate-u.edu.ph</a></td>
@@ -118,3 +118,5 @@ Below is a table highlighting the key contributors to the project, along with th
 
 <br>
 </br>
+
+## <a id="proj_developers"> 🚍 Acknowledgement </a>
