@@ -584,7 +584,7 @@ void view_stations(const string& username) {
     }
 
     while (true) {
-        cout << "\n> Would you like to go back to the User Menu? (Y/N) ";
+        cout << "\n> Would you like to go back to the User Menu? (Y/N): ";
         string choice;
         cin >> choice;
         if (choice == "Y" || choice == "y") {
@@ -684,8 +684,13 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     float rcp_tix_disc = stof(receipt.at("rcp_tix_disc"));
 
     print_centered(string(50, '_'), 100);
+    print_centered(string(50, '_'), 100);
     cout << endl;
-    print_centered("BARACO Official Receipt", 100);
+    print_centered("   __      __      __ __  ", 100);
+    print_centered("  |__) /\\ |__) /\\ /  /  \\ ", 100);
+    print_centered("  |__)/--\\| \\ /--\\\\__\\__/ ", 100);
+    print_centered("                          ", 100);
+    print_centered("Official Receipt", 100);
     cout << endl;
 
     print_centered("Reference No.: " + ref_no, 100);
@@ -695,6 +700,7 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     print_centered("Regular: Php " + format_currency(rcp_tix), 100);
     print_centered("Discount: Php " + format_currency(rcp_disc), 100);
     print_centered("Total Amount: Php " + format_currency(rcp_tix_disc), 100);
+    print_centered(string(50, '_'), 100);
     print_centered(string(50, '_'), 100);
     cout << endl;
 }
@@ -741,130 +747,142 @@ void select_route(const string& username) {
         i++;
     }
 
-    while (true) {
-        cout << endl << "> Kindly select the numerical input corresponding to your origin point: ";
-        while (!(cin >> orig_pt)) {
-            cout << "Invalid input. please enter an integer: ";
+    int orig_pt = -1;
+    int dest_pt = -1;
+
+    // Input origin point with error handling
+    while (orig_pt < 1 || orig_pt >= i) {
+        cout << endl << "> Kindly select the numerical input corresponding to your origin point (1 to " << i-1 << "): ";
+        while (!(cin >> orig_pt) || orig_pt < 1 || orig_pt >= i) {
+            cout << "Invalid input. Please enter a number between 1 and " << i-1 << ": ";
             cin.clear();
-            cin.ignore(1000000, '\n');
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        cout << "> Kindly select the numerical input corresponding to your destination point: ";
-        while (!(cin >> dest_pt)) {
-            cout << "Invalid input. please enter an integer: ";
+    }
+
+    // Input destination point with error handling
+    while (dest_pt < 1 || dest_pt >= i || dest_pt == orig_pt) {
+        cout << "> Kindly select the numerical input corresponding to your destination point (1 to " << i-1 << "): ";
+        while (!(cin >> dest_pt) || dest_pt < 1 || dest_pt >= i || dest_pt == orig_pt) {
+            if (dest_pt == orig_pt) {
+                cout << "Destination point cannot be the same as origin point. ";
+            }
+            cout << "Invalid input. Please enter a number between 1 and " << i-1 << ": ";
             cin.clear();
-            cin.ignore(1000000, '\n');
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        orig_dest = to_string(orig_pt) + "-" + to_string(dest_pt);
+    }
 
-        if (routes_km.find(orig_dest) != routes_km.end()) {
-            baraco_tix = 5 * abs(routes_km[orig_dest] - 7);
-            baraco_tix = static_cast<int>(baraco_tix) + (baraco_tix - static_cast<int>(baraco_tix) >= 0.5 ? 1 : 0);
-            total_routes.push_back(routes_km[orig_dest]);
+    orig_dest = to_string(orig_pt) + "-" + to_string(dest_pt);
 
-            cout << "\t>> The calculated distance from " << baraco_stations[to_string(orig_pt)] << " to " << baraco_stations[to_string(dest_pt)] << " is " << routes_km[orig_dest] << " kilometers.\n";
+    if (routes_km.find(orig_dest) != routes_km.end()) {
+        baraco_tix = 5 * abs(routes_km[orig_dest] - 7);
+        baraco_tix = static_cast<int>(baraco_tix) + (baraco_tix - static_cast<int>(baraco_tix) >= 0.5 ? 1 : 0);
+        total_routes.push_back(routes_km[orig_dest]);
 
-            while (true) {
-                cout << "> Are you a senior citizen, PWD, or a student? (Y/N) ";
-                string elig_disc;
-                cin >> elig_disc;
+        cout << "\t>> The calculated distance from " << baraco_stations[to_string(orig_pt)] << " to " << baraco_stations[to_string(dest_pt)] << " is " << routes_km[orig_dest] << " kilometers.\n";
 
-                if (elig_disc == "Y" || elig_disc == "y") {
-                    baraco_disc = baraco_tix * 0.2;
-                    baraco_tix_disc = baraco_tix - baraco_disc;
+        while (true) {
+            cout << "> Are you a senior citizen, PWD, or a student? (Y/N): ";
+            string elig_disc;
+            cin >> elig_disc;
 
-                    if (user_coins < baraco_tix_disc) {
-                        cout << "\t>> Insufficient coins. Please top up your card.\n";
-                        user_menu(username);
-                    }
+            if (elig_disc == "Y" || elig_disc == "y") {
+                baraco_disc = baraco_tix * 0.2;
+                baraco_tix_disc = baraco_tix - baraco_disc;
 
-                    total_sales.push_back(baraco_tix_disc);
-                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare with the 20% discount applied is Php " << fixed << setprecision(2) << baraco_tix_disc << ".\n\n";
-
-                    ref_no = generate_ref_no();
-                    date_time = get_current_datetime();
-
-                    baraco_rcp[ref_no] = {
-                        {"rcp_datetime", date_time},
-                        {"rcp_cond", cond_name},
-                        {"rcp_orig", to_string(orig_pt)},
-                        {"rcp_dest", to_string(dest_pt)},
-                        {"rcp_tix", to_string(baraco_tix)},
-                        {"rcp_disc", to_string(baraco_disc)},
-                        {"rcp_tix_disc", to_string(baraco_tix_disc)}
-                    };
-
-                    print_receipt(ref_no, baraco_rcp[ref_no]);
-
-                    save_coins(username, baraco_tix_disc);
-
-                    while (true) {
-                        cout << "> Would you like to go back to the user menu? (Y/N) ";
-                        string again;
-                        cin >> again;
-                        if (again == "Y" || again == "y") {
-                            user_menu(username);
-                            return;
-                        }
-                        else if (again == "N" || again == "n") {
-                            select_route(username);
-                            return;
-                        }
-                        else {
-                            cout << "\t>> Invalid input. Please try again.\n";
-                        }
-                    }
+                if (user_coins < baraco_tix_disc) {
+                    cout << "\t>> Insufficient coins. Please top up your card.\n";
+                    user_menu(username);
                 }
-                else if (elig_disc == "N" || elig_disc == "n") {
-                    if (user_coins < baraco_tix) {
-                        cout << "\t>> Insufficient coins. Please top up your card.\n";
+
+                total_sales.push_back(baraco_tix_disc);
+                cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare with the 20% discount applied is Php " << fixed << setprecision(2) << baraco_tix_disc << ".\n\n";
+
+                ref_no = generate_ref_no();
+                date_time = get_current_datetime();
+
+                baraco_rcp[ref_no] = {
+                    {"rcp_datetime", date_time},
+                    {"rcp_cond", cond_name},
+                    {"rcp_orig", to_string(orig_pt)},
+                    {"rcp_dest", to_string(dest_pt)},
+                    {"rcp_tix", to_string(baraco_tix)},
+                    {"rcp_disc", to_string(baraco_disc)},
+                    {"rcp_tix_disc", to_string(baraco_tix_disc)}
+                };
+
+                print_receipt(ref_no, baraco_rcp[ref_no]);
+
+                save_coins(username, baraco_tix_disc);
+
+                while (true) {
+                    cout << "> Would you like to go back to the user menu? (Y/N): ";
+                    string again;
+                    cin >> again;
+                    if (again == "Y" || again == "y") {
                         user_menu(username);
+                        return;
                     }
-
-                    total_sales.push_back(baraco_tix);
-                    cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare is Php " << fixed << setprecision(2) << baraco_tix << ".\n\n";
-
-                    ref_no = generate_ref_no();
-                    date_time = get_current_datetime();
-
-                    baraco_rcp[ref_no] = {
-                        {"rcp_datetime", date_time},
-                        {"rcp_cond", cond_name},
-                        {"rcp_orig", to_string(orig_pt)},
-                        {"rcp_dest", to_string(dest_pt)},
-                        {"rcp_tix", to_string(baraco_tix)},
-                        {"rcp_disc", "0"},
-                        {"rcp_tix_disc", to_string(baraco_tix)}
-                    };
-
-                    print_receipt(ref_no, baraco_rcp[ref_no]);
-
-                    save_coins(username, baraco_tix);
-
-                    while (true) {
-                        cout << "> Would you like to go back to the user menu? (Y/N) ";
-                        string again;
-                        cin >> again;
-                        if (again == "Y" || again == "y") {
-                            user_menu(username);
-                            return;
-                        }
-                        else if (again == "N" || again == "n") {
-                            select_route(username);
-                            return;
-                        }
-                        else {
-                            cout << "\t>> Invalid input. Please try again.\n";
-                        }
+                    else if (again == "N" || again == "n") {
+                        select_route(username);
+                        return;
                     }
-                }
-                else {
-                    cout << "\t>> Invalid input. Please try again.\n";
+                    else {
+                        cout << "\t>> Invalid input. Please try again.\n";
+                    }
                 }
             }
+            else if (elig_disc == "N" || elig_disc == "n") {
+                if (user_coins < baraco_tix) {
+                    cout << "\t>> Insufficient coins. Please top up your card.\n";
+                    user_menu(username);
+                }
+
+                total_sales.push_back(baraco_tix);
+                cout << "\t>> Thank you for riding with BARACO. Your total ticketing fare is Php " << fixed << setprecision(2) << baraco_tix << ".\n\n";
+
+                ref_no = generate_ref_no();
+                date_time = get_current_datetime();
+
+                baraco_rcp[ref_no] = {
+                    {"rcp_datetime", date_time},
+                    {"rcp_cond", cond_name},
+                    {"rcp_orig", to_string(orig_pt)},
+                    {"rcp_dest", to_string(dest_pt)},
+                    {"rcp_tix", to_string(baraco_tix)},
+                    {"rcp_disc", "0"},
+                    {"rcp_tix_disc", to_string(baraco_tix)}
+                };
+
+                print_receipt(ref_no, baraco_rcp[ref_no]);
+
+                save_coins(username, baraco_tix);
+
+                while (true) {
+                    cout << "> Would you like to go back to the user menu? (Y/N): ";
+                    string again;
+                    cin >> again;
+                    if (again == "Y" || again == "y") {
+                        user_menu(username);
+                        return;
+                    }
+                    else if (again == "N" || again == "n") {
+                        select_route(username);
+                        return;
+                    }
+                    else {
+                        cout << "\t>> Invalid input. Please try again.\n";
+                    }
+                }
+            }
+            else {
+                cout << "\t>> Invalid input. Please try again.\n";
+            }
         }
-        else {
-            cout << "\t>> Invalid input. Please try again.\n";
-        }
+    }
+    else {
+        cout << "\t>> Invalid input. Please try again.\n";
     }
 }
 
@@ -875,7 +893,11 @@ void sign_out() {
 
 void main_menu() {
     cout << string(100, '_') << endl << endl;
-    print_centered("BARACO", 100);
+    
+    print_centered("   __      __      __ __  ", 100);
+    print_centered("  |__) /\\ |__) /\\ /  /  \\ ", 100);
+    print_centered("  |__)/--\\| \\ /--\\\\__\\__/ ", 100);
+    print_centered("                          ", 100); 
     print_centered("Batangas Railway Corporation", 100);
     print_centered("Main Menu", 100);
     cout << endl;
