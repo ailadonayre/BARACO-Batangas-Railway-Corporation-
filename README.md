@@ -90,7 +90,7 @@ Below is a table highlighting the key contributors to the project, along with th
   </thead>
   <tbody>
     <tr>
-      <td><img src="/BARACO README/Anda.png" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
       <td>Developer</td>
       <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
@@ -102,13 +102,13 @@ Below is a table highlighting the key contributors to the project, along with th
       <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
     </tr>
     <tr>
-      <td><img src="Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
       <td>Developer</td>
       <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
     </tr>
     <tr>
-      <td><img src="Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
       <td>Developer</td>
       <td><a href="mailto:andavael05@gmail.com">andavael05@gmail.com</a></td>
