@@ -118,3 +118,5 @@ Below is a table highlighting the key contributors to the project, along with th
 
 <br>
 </br>
+
+## <a id="proj_developers"> 🚍 Acknowledgement </a>
