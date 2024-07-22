@@ -7,21 +7,18 @@
 # BARACO (Batangas Railway Corportation)
 Batangas Railway Corporation (BARACO) is a C++ program developed to enhance the convenience of travel for both train conductors and passengers in Batangas City. This program will operate through a console (DIPA SURE) interface, streamlining fare management and enhancing efficiency.
 <br>
-</br>
 
 ## Summary of Sections
 -  [1. Project Overview](#proj_overview)
 -  [2. Project Deliverables](#prof_deliverables)
--  [3. Technical Solution Framewor](#tech_framework)
+-  [3. Technical Solution Framework](#tech_framework)
 -  [4. Usage Guidelines](#use_guidelines) 
 -  [5. Project Developers](#proj_developers)
 <br>
-</br>
 
 ## <a id = "proj_overview"> 🚍 Project Overview </a> 
 The BARACO application is crafted to transform the travel experience in Batangas City by providing a powerful and intuitive tool for managing the railway system. It is designed to simplify fare calculations, streamline route selection, and facilitate seamless card top-ups. By offering user-friendly features and efficient functionalities, the application aims to greatly enhance the convenience and efficiency of travel for both train conductors and passengers. Its goal is to make the commuting experience smoother, more organized, and highly accessible.
 <br>
-</br>
 
 ## <a id="prof_deliverables"> 🚍 Project Deliverables </a>
 <br>
@@ -68,14 +65,29 @@ Below are the key features of the BARACO application:
 6. **Remove Route from Favorites (TBA)**
     > Remove routes from favorites.
 <br>
-</br>
 
-## <a id = "tech_framework"> 🚍 Technical Solution Framework </a> 
+## <a id="tech_framework"> 🚍 Technical Solution Framework </a>
+The BARACO project uses a set of technologies to build an efficient console application. Below is an overview of the technical framework.
+
+### Technologies Used
+- **Programming Language**: C++
+- **Console Interface**: Command-line interactions
+- **Database Management**: File-based storage with text files (.txt)
+
+### Development Tools
+- **IDEs**: Visual Studio
+- **Text Editor**: Notepad++ for text file management
+- **Version Control**: Git, GitHub
+
+### Libraries Used
+- **Standard C++ Library**
+  > Includes various components for I/O operations, string handling, data structures, algorithms, and file system operations (requires C++17).
+- **Platform-Specific Library**
+  > Windows API functions for platform-specific features.
 <br>
-</br>
 
 ## <a id="proj_developers"> 🚍 Project Developers </a>
-The BARACO project is proudly developed by a team of highly skilled first-year BS Computer Science students. Their diligence and enthusiasm have been instrumental in both the development and continuous enhancement of the application.
+The BARACO project is proudly developed by a team of highly skilled first-year BS Computer Science students, from **BS-1301**. Their diligence and enthusiasm have been instrumental in both the development and continuous enhancement of the application.
 
 Below is a table highlighting the key contributors to the project, along with their roles and contact information:
 
@@ -90,33 +102,40 @@ Below is a table highlighting the key contributors to the project, along with th
   </thead>
   <tbody>
     <tr>
-      <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/Anda.jpg" alt="Anthonina Dhapniella C. Vael" width="50" height="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/andavael" target="_blank">Anthonina Dhapniella C. Vael</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-04485@g.batstate-u.edu.ph">23-04485@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/Donayre, Aila Roshiele C.JPG" alt="Aila Roshiele C. Donayre" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/Donayre, Aila Roshiele C.JPG" alt="Aila Roshiele C. Donayre" width="50" height="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/ailadonayre" target="_blank">Aila Roshiele C. Donayre</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-02175@g.batstate-u.edu.ph">23-02175@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/KC.png" alt="Kristal Clarisse Dimayuga" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/KC.png" alt="Kristal Clarisse Dimayuga" width="50" height="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/kristaldimayuga" target="_blank">Kristal Clarisse Dimayuga</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-08318@g.batstate-u.edu.ph">23-08318@g.batstate-u.edu.ph</a></td>
     </tr>
     <tr>
-      <td><img src="/BARACO README/RC.png" alt="Richard Crue Torres" width="50" style="border-radius:50%;"></td>
+      <td><img src="/BARACO README/RC.png" alt="Richard Crue Torres" width="50" height="50" style="border-radius:50%;"></td>
       <td><a href="https://github.com/RC-Torres" target="_blank">Richard Crue Torres</a></td>
       <td>Developer</td>
       <td><a href="mailto:23-02148@g.batstate-u.edu.ph">23-02148@g.batstate-u.edu.ph</a></td>
     </tr>
   </tbody>
 </table>
+<br>
+
+**COURSE:** CS 131 - Data Structures and Algorithms 
+
+<br>
+
+## 🚍 Acknowledgement
+
+We would like to extend our heartfelt gratitude to our adviser, **Ms. Fatima Marie P. Agdon**, for her invaluable contributions and support to this project through her guidance in the course **CS 131 - Data Structures and Algorithms**.
 
 <br>
 </br>
-
-## <a id="proj_developers"> 🚍 Acknowledgement </a>
