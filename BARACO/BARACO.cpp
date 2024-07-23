@@ -67,7 +67,6 @@ string get_current_datetime();
 void select_route(const string& username);
 void sign_out();
 void main_menu();
-
 void view_favorite(const string& username);
 void add_favorites(const string& username);
 void remove_favorites(const string& username);
@@ -250,9 +249,8 @@ void save_coins(const string& username, float coins) {
 void activate_card() {
     string id_number, username, password;
 
-    cout << string(100, '_') << endl << endl;
-    print_centered("BARACO", 100);
-    print_centered("Batangas Railway Corporation", 100);
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
     print_centered("Activate BARACO Card", 100);
     cout << endl;
 
@@ -336,9 +334,8 @@ void activate_card() {
 void open_card() {
     string username, password;
 
-    cout << string(100, '_') << endl << endl;
-    print_centered("BARACO", 100);
-    print_centered("Batangas Railway Corporation", 100);
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
     print_centered("Open BARACO Card", 100);
     cout << endl;
 
@@ -402,8 +399,12 @@ void user_menu(const string& username) {
     }
     users_file.close();
 
-    cout << string(100, '_') << endl << endl;
-    print_centered("BARACO", 100);
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
+    print_centered("   __      __      __ __  ", 100);
+    print_centered("  |__) /\\ |__) /\\ /  /  \\ ", 100);
+    print_centered("  |__)/--\\| \\ /--\\\\__\\__/ ", 100);
+    print_centered("                          ", 100);
     print_centered("Batangas Railway Corporation", 100);
     print_centered("User Menu", 100);
     cout << endl;
@@ -428,7 +429,7 @@ void user_menu(const string& username) {
         cout << "\n> Kindly select an option: ";
         int choice;
         while (!(cin >> choice)) {
-            cout << "Invalid input. Please enter an integer: ";
+            cout << "\t>> Invalid input. Please enter an integer: ";
             cin.clear();
             cin.ignore(1000000, '\n');
         }
@@ -450,12 +451,17 @@ void user_menu(const string& username) {
             return;
         default:
             cout << "\t>> Invalid input. Please try again.\n";
+            user_menu(username);
         }
     }
 }
 
 void view_favorite(const string& username) {
-    print_centered("Favorite BARACO Routes\n", 100);
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
+    print_centered("Favorite BARACO Routes", 100);
+    cout << endl;
+
     auto it = user_favorites.find(username);
     if (it != user_favorites.end() && !it->second.empty()) {
         for (size_t i = 0; i < it->second.size(); ++i) {
@@ -467,10 +473,10 @@ void view_favorite(const string& username) {
         cout << "No favorite routes found.\n";
     }
 
-    cout << "\n[A] Add new favorite route\n";
-    cout << "[R] Remove favorite route\n";
-    cout << "[X] return\n";
-    cout << "Enter your choice: ";
+    cout << "\n[A] Add Route to Favorites\n";
+    cout << "[R] Remove Route from Favorites\n";
+    cout << "[X] Return\n";
+    cout << "\n> Enter your choice: ";
 
     string choice;
     getline(cin >> ws, choice);
@@ -500,15 +506,18 @@ void view_favorite(const string& username) {
 }
 
 void add_favorites(const string& username) {
-    print_centered("\nAdd New Favorite Route", 100);
-    cout << "\nAdd New Favorite Route\n\n";
-    cout << "Available Routes:\n";
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
+    print_centered("Add Route to Favorites", 100);
+    cout << endl;
+
+    cout << "Available Routes:\n\n";
     for (const auto& route : routes_km) {
         cout << route.first << " - " 
              << baraco_stations[route.first.substr(0, 1)] << " to " 
              << baraco_stations[route.first.substr(2, 1)] << "\n";
     }
-    cout << "\nEnter the route you want to add (e.g., 1-2): ";
+    cout << "\n> Enter the route you want to add (e.g., 1-2): ";
     string new_route;
     getline(cin >> ws, new_route);
 
@@ -520,20 +529,23 @@ void add_favorites(const string& username) {
     auto it = routes_km.find(new_route);
     if (it != routes_km.end()) {
         if (find(user_favorites[username].begin(), user_favorites[username].end(), new_route) != user_favorites[username].end()) {
-            cout << "\nRoute has already been added to favorites.\n";
+            cout << "\t>> Route has already been added to favorites.\n";
         } else {
             user_favorites[username].push_back(new_route);
-            cout << "\nRoute added to favorites.\n";
+            cout << "\t>> Route added to favorites.\n";
         }
     } else {
-        cout << "\nInvalid route. Please try again.\n";
+        cout << "\t>> Invalid route. Please try again.\n";
     }
 
     view_favorite(username);
 }
 
 void remove_favorites(const string& username) {
-    print_centered("\nRemove Favorite Route", 100);
+    cout << string(100, '-') << endl << endl;
+    print_centered("Remove Route from Favorites", 100);
+    cout << endl;
+
     auto it = user_favorites.find(username);
     if (it != user_favorites.end() && !it->second.empty()) {
         for (size_t i = 0; i < it->second.size(); ++i) {
@@ -541,7 +553,7 @@ void remove_favorites(const string& username) {
                  << baraco_stations[it->second[i].substr(0, 1)] << " to " 
                  << baraco_stations[it->second[i].substr(2, 1)] << "\n";
         }
-        cout << "\nEnter the number of the route you want to remove: ";
+        cout << "\n> Enter the number of the route that you want to remove: ";
         string input;
         getline(cin >> ws, input);
 
@@ -554,26 +566,27 @@ void remove_favorites(const string& username) {
         try {
             route_num = stoi(input);
         } catch (const invalid_argument&) {
-            cout << "\nInvalid input. Please try again.\n";
+            cout << "\t>>Invalid input. Please try again.\n";
             remove_favorites(username);
             return;
         }
 
         if (route_num > 0 && route_num <= static_cast<int>(it->second.size())) {
             it->second.erase(it->second.begin() + (route_num - 1));
-            cout << "\nRoute removed from favorites.\n";
+            cout << "\t>> Route removed from favorites.\n";
         } else {
-            cout << "\nInvalid number. Please try again.\n";
+            cout << "\t>> Invalid number. Please try again.\n";
         }
     } else {
-        cout << "\nNo favorite routes to remove.\n";
+        cout << "\nNo routes to remove.\n";
     }
 
     view_favorite(username);
 }
 
 void view_stations(const string& username) {
-    cout << string(100, '_') << endl << endl;
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
     print_centered("View BARACO Stations", 100);
     cout << endl;
 
@@ -584,7 +597,7 @@ void view_stations(const string& username) {
     }
 
     while (true) {
-        cout << "\n> Would you like to go back to the User Menu? (Y/N): ";
+        cout << "\n> Would you like to go back to the user menu? (Y/N): ";
         string choice;
         cin >> choice;
         if (choice == "Y" || choice == "y") {
@@ -602,6 +615,12 @@ void view_stations(const string& username) {
 
 void topup_card(const string& username) {
     float coins_to_add;
+
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
+    print_centered("Top-up BARACO Card", 100);
+    cout << endl;
+
     cout << "> Enter the amount you want to add (Php): ";
     cin >> coins_to_add;
 
@@ -649,6 +668,7 @@ void topup_card(const string& username) {
     users_file_out.close();
 
     cout << "\t>> Top-up successful! Your new coin balance is updated." << endl;
+    user_menu(username);
 }
 
 string generate_ref_no() {
@@ -683,8 +703,8 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     float rcp_disc = stof(receipt.at("rcp_disc"));
     float rcp_tix_disc = stof(receipt.at("rcp_tix_disc"));
 
-    print_centered(string(50, '_'), 100);
-    print_centered(string(50, '_'), 100);
+    print_centered(string(50, '-'), 100);
+    print_centered(string(50, '-'), 100);
     cout << endl;
     print_centered("   __      __      __ __  ", 100);
     print_centered("  |__) /\\ |__) /\\ /  /  \\ ", 100);
@@ -700,8 +720,9 @@ void print_receipt(const string& ref_no, const map<string, string>& receipt) {
     print_centered("Regular: Php " + format_currency(rcp_tix), 100);
     print_centered("Discount: Php " + format_currency(rcp_disc), 100);
     print_centered("Total Amount: Php " + format_currency(rcp_tix_disc), 100);
-    print_centered(string(50, '_'), 100);
-    print_centered(string(50, '_'), 100);
+    cout << endl;
+    print_centered(string(50, '-'), 100);
+    print_centered(string(50, '-'), 100);
     cout << endl;
 }
 
@@ -710,7 +731,6 @@ void select_route(const string& username) {
     baraco_disc = 0;
     baraco_tix_disc = 0;
 
-    // Fetch current user's coin balance
     ifstream users_file("src/users.txt");
     string line;
     float user_coins = 0.0f;
@@ -737,7 +757,8 @@ void select_route(const string& username) {
     }
     users_file.close();
 
-    cout << string(100, '_') << endl << endl;
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
     print_centered("Select BARACO Route", 100);
     cout << endl;
 
@@ -750,7 +771,6 @@ void select_route(const string& username) {
     int orig_pt = -1;
     int dest_pt = -1;
 
-    // Input origin point with error handling
     while (orig_pt < 1 || orig_pt >= i) {
         cout << endl << "> Kindly select the numerical input corresponding to your origin point (1 to " << i-1 << "): ";
         while (!(cin >> orig_pt) || orig_pt < 1 || orig_pt >= i) {
@@ -760,7 +780,6 @@ void select_route(const string& username) {
         }
     }
 
-    // Input destination point with error handling
     while (dest_pt < 1 || dest_pt >= i || dest_pt == orig_pt) {
         cout << "> Kindly select the numerical input corresponding to your destination point (1 to " << i-1 << "): ";
         while (!(cin >> dest_pt) || dest_pt < 1 || dest_pt >= i || dest_pt == orig_pt) {
@@ -892,8 +911,8 @@ void sign_out() {
 }
 
 void main_menu() {
-    cout << string(100, '_') << endl << endl;
-    
+    cout << endl;
+    cout << string(100, '-') << endl << endl;
     print_centered("   __      __      __ __  ", 100);
     print_centered("  |__) /\\ |__) /\\ /  /  \\ ", 100);
     print_centered("  |__)/--\\| \\ /--\\\\__\\__/ ", 100);
