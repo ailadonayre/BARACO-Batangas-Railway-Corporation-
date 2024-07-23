@@ -99,7 +99,7 @@ The BARACO project uses a set of technologies to build an efficient console appl
 <br>
 
 ## <a id="proj_developers"> 🚝 Project Developers </a>
-The BARACO project is proudly developed by a team of highly skilled first-year BS Computer Science students, from **BS-1301**. Their diligence and enthusiasm have been instrumental in both the development and continuous enhancement of the application.
+The BARACO project is proudly developed by a team of highly skilled first-year BS Computer Science students, from **CS-1301**. Their diligence and enthusiasm have been instrumental in both the development and continuous enhancement of the application.
 
 Below is a table highlighting the key contributors to the project, along with their roles and contact information:
 
