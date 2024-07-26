@@ -91,7 +91,7 @@ The BARACO project uses a set of technologies to build an efficient console appl
 ### Data Structure Used
 - **Arrays**: For managing lists of stations, routes, and favorites.
 
-### Algorithms Applied
+### DSA Operations Applied
 1. **Read**: For array traversal.
 2. **Search and Sort**: For searching and organizing routes.
 3. **Delete/Remove**: For removing routes from favorites.
