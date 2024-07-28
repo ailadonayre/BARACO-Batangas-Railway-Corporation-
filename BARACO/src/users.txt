@@ -11,3 +11,4 @@ ID Number: 3896582394, Username: alia, Password: roshiele, Coins: 0
 ID Number: 6177440326, Username: baraco, Password: 12345678, Coins: 0
 ID Number: 3173485668, Username: debug, Password: debugger, Coins: 9835.00
 ID Number: 3105106319, Username: rcrc, Password: lalalala, Coins: 0
+ID Number: 9917696341, Username: user, Password: password123, Coins: 931.60
